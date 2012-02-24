@@ -1,0 +1,97 @@
+Author: Craig Lehmann
+Date: Feb 23, 2012
+
+Overview:
+  This application is being created for a course on Software Systems Development 
+  and Integration at the the University of Guelph. On the sections marked so far I recieved
+  92%, one of the top marks in the class. 
+
+  The theme for this assignment concerns the processing of "MARC" records, MARC 
+  being an international standard for the exchange and storage of bibliographic 
+  data by libraries. 
+
+There are 4 layers to the assignment:
+  Layer 1: Utility functions written in C utilize libxml2 library to parse XML file 
+           into an internal tree data structure. 
+  Layer 2: A UNIX style command line utility written in C using layer 1 functions. 
+  Layer 3: A GUI front end for layer 2, written in python.
+  Layer 4: Incorporates a connection to a database management system. (PostgreSQL)
+
+Currently I am working on layer 3. Please feel free to test out layer 1/2 though!
+
+
+Usage instructions: 
+Dependencies: 
+  -libxml2:  
+   -If running ubuntu type:
+   $sudo apt-get install libxml2-dev
+   
+   -else: 
+   download from: ftp://xmlsoft.org/libxml2/libxml2-2.7.8.tar.gz
+   Extract the contents, then cd into the directory. Type the following: 
+   $./configure 
+   $make 
+   $sudo make install
+
+environment variable: 
+  -mxtool checks an environment variable for the location of the included marc schema. 
+  -Type the following:
+  $export MXTOOL_XSD=MARC21slim.xsd
+
+build: 
+  $make
+
+example of use:
+1.Review file: The program reads the MARCXML collection and presents a summary of 
+  each record--author, title, and publication info, along with a generated sequential 
+  record number--to the user for review.
+  e.g. 
+  $./mxtool -review < collection.xml > newcollection.xml
+  options: 
+    $'Enter' ( record is copied to stdout )
+    $'Spacebar' ( record is skipped )
+    $'k' ( copy remaining records to stdout )
+    $'d' ( skip remaining records and exit )
+
+2.Concatenate another file: The program reads the MARCXML collection and the 
+  additional MARCXML file specified in the argument. It outputs a MARCXML file
+  containing a single collection with all the records of the first file followed 
+  by all those of the additional file
+  e.g. 
+  $./mxtool -cat collection.xml < sandburg.xml > newCS.xml
+
+3.Keep some records: The program reads the MARCXML collection and outputs a MARCXML 
+  file containing only those records that match the given pattern, which is in the form
+  <field>=<regex>. <field> designates the field to be searched, and must be the first 
+  letter of any of these field names: a uthor, t itle, and p ublication info (normally, 
+  publisher and date). <regex> can be any regular expression (case-sensitive by default). 
+  e.g.
+  $./mxtool -keep a=Monk < trellis.xml > short.xml
+
+4.Discard some records: Executing the logical inverse of -keep , the program reads the
+  MARCXML collection and outputs a MARCXML file containing only those records that don't 
+  match the given pattern.
+  e.g. 
+  $./mxtool -discard a=monk < trellis.xml > short.xml
+
+5.Format for library: The program converts a MARCXML collection into a format suitable 
+  for library lookup; i.e., call number, author, title, and publication info, in that
+  order. The records are output by ascending call number (case insensitive).
+  e.g.
+  $./mxtool -lib < trellis.xml
+
+6.Format for bibliography: The program converts a MARCXML collection into a format  
+  suitable for inclusion in a printed bibliography; i.e., author, title, and publication 
+  info, in that order. The records are output alphabetically by author (case insensitive).
+  e.g. 
+  $./mxtool -bib < trellis.xml
+
+
+Valgrind:
+  The utility is free from memory leaks as far as valgrind is concerned. However! A valgrind
+  supression file is used to hide errors/leaks inherint with the libxml2 library used. 
+  
+  Example of valgrind use type:
+  $make vgreview
+  or
+  $make vgcat

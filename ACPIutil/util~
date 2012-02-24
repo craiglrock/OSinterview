@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# Created by Craig Lehmann
+# Date: Feb 23, 2012
+# A simple shell script for reporting laptop battery life + temperature
+# uses user space features of acpi
+
+
+# Function: check for battery state data and print it to stdout if it exist
+# should print state of more than one battery if applicable
+showBattery() {
+  if [ -d /proc/acpi/battery ]; then
+    echo "----Battery State----"
+    find /proc/acpi/battery -name state -exec cat '{}' ';'
+    echo "---------------------"
+  else
+    echo "error: no battery directory in /proc/acpi"
+  fi
+}
+
+#Function: check for thermal data and print to stdout if it exists
+showThermal(){
+  if [ -d /sys/class/thermal ]; then
+    echo "-----Temperature-----"
+    grep -e '000' /sys/class/thermal/thermal_zone0/temp
+    echo "---------------------"
+  elif [ -d /proc/acpi/thermal_zone ]; then
+    cat /proc/acpi/thermal_zone/THM/temperature
+  else
+    echo "error: could not find temperature data"
+  fi
+}
+
+# main program
+echo "-----------------------------------"
+echo "Temperature/Battery script starting!"
+echo "-----------------------------------"
+while [ "$input" != 3 ]; do
+  echo "Enter '1' for Battery state"
+  echo "Enter '2' for temperature data"
+  echo "Enter '3' to quit"
+  read input
+  
+  case "$input" in 
+    1 | one ) 
+      showBattery;;
+    2 | two )
+      showThermal;;
+  esac
+    
+done
+
+
+exit 0

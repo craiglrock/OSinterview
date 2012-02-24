@@ -1,0 +1,10 @@
+Created by Craig Lehmann
+Date: Feb 24, 2012
+
+
+Description:
+A small linux shell script to show current system temperature and
+battery life if applicable.
+
+usage:
+$/bin/sh util
